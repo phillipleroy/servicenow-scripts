@@ -1,4 +1,9 @@
-//Testing the GitHub change
+/*
+
+Script to cancel running/active Workflows.
+
+*/
+
 var myGR = new GlideRecord("wf_context");
 myGR.addQuery('workflow_version.name', 'Normal Change 4 level approval'); //Sys ID from the old Workflow Version
 myGR.addQuery('state', 'executing');
