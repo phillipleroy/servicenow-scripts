@@ -17,4 +17,4 @@ for (var i = 0 ; i < allLayers.length ; i++) {
                 layer.markRecomputationNeeded();
 }
  
-SNC.ServiceMappingFactory.recomputeLayer(layerGr); 
+SNC.ServiceMappingFactory.recomputeLayer(layerGr);
