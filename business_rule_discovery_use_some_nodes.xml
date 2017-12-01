@@ -1,0 +1,124 @@
+<!--
+
+This is a Business Rule that will make sure Discovery only runs jobs on specific nodes.
+You will have to always keep the nodes updated to the nodes which instance is running.
+
+-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2017-12-01 12:09:12">
+<sys_script action="INSERT_OR_UPDATE">
+<abort_action>false</abort_action>
+<access>package_private</access>
+<action_delete>false</action_delete>
+<action_insert>true</action_insert>
+<action_label/>
+<action_name/>
+<action_query>false</action_query>
+<action_run_at>server</action_run_at>
+<action_update>false</action_update>
+<active>true</active>
+<add_message>false</add_message>
+<advanced>true</advanced>
+<application/>
+<change_fields>false</change_fields>
+<client_callable>false</client_callable>
+<collection>sys_trigger</collection>
+<condition>current.name.toString().indexOf("ASYNC: Discovery")&gt;-1 || current.job_context.toString().indexOf("fcDocumentClass=ecc_queue")&gt;-1 || current.job_context.toString().indexOf("fcDocumentClass=discovery_schedule")&gt;-1</condition>
+<description>11/20/17 ticket not getting response-added the 2 nodes that do not show traffic  INT3507637
+
+11/17/17  2 of the sj nodes appear to be mssing-commenting out
+This business rule sets the system_id field value for any new sys_trigger records related to the Discovery Sensors.
+When the instance is failed over to the alternate datacenter this script will have to be updated as per the instructions in the comments of the script below.</description>
+<execute_function>false</execute_function>
+<filter_condition table="sys_trigger"/>
+<is_rest>false</is_rest>
+<message/>
+<name>SNC Limit Discovery Processing</name>
+<onclick/>
+<order>100</order>
+<priority>100</priority>
+<read_access_action>false</read_access_action>
+<rest_method display_value=""/>
+<rest_method_text/>
+<rest_service display_value=""/>
+<rest_service_text/>
+<rest_variables/>
+<role_conditions/>
+<script><![CDATA[/*
+
+This script will set the system_id field of ASYNC Jobs to only run on the two specified nodes in the script.
+These nodes have been removed from the load balancer to prevent user traffic from being sent to them.
+
+Here are the nodes that have been identified for Discovery only processing:
+
+SJC
+NODES[0] = "app128152.sjc104.service-now.com:ascensionprod171"
+NODES[1] = "app128153.sjc104.service-now.com:ascensionprod164"
+NODES[2] = "app129012.sjc5.service-now.com:ascensionprod039"
+NODES[3] = "app129012.sjc5.service-now.com:ascensionprod041"
+
+IAD
+NODES[0] = "app129082.iad3.service-now.com:ascensionprod028"
+NODES[1] = "app129084.iad3.service-now.com:ascensionprod035"
+NODES[2] = "app129082.iad3.service-now.com:ascensionprod027"
+NODES[3] = "app129085.iad3.service-now.com:ascensionprod038"
+
+At any time that the instance needs to be switched between data centers this script will handle the switch.  The only thing that will need to be updated is sys_cluster_state.  Set the new set of nodes to "Specified" so they will only run these Discovery jobs.
+
+ */
+
+assignWorkerNode();
+
+
+
+function assignWorkerNode() {
+ var system_id = gs.getSystemID();
+ var NODES = new Array();
+
+if(system_id.indexOf("iad") != -1){
+NODES[0] = "app128153.iad104.service-now.com:ascensionprod120";
+NODES[1] = "app128154.iad104.service-now.com:ascensionprod129";
+NODES[2] = "app128155.iad104.service-now.com:ascensionprod135";
+NODES[3] = "app128156.iad104.service-now.com:ascensionprod137";
+} else {
+NODES[0] = "app128152.sjc104.service-now.com:ascensionprod131";
+NODES[1] = "app128153.sjc104.service-now.com:ascensionprod145";
+NODES[2] = "app128152.sjc104.service-now.com:ascensionprod171";
+NODES[3] = "app128153.sjc104.service-now.com:ascensionprod164";
+
+/* as of 11/17/17 these are not on diag page
+NODES[2] = "app128154.sjc104.service-now.com:ascensionprod146";
+NODES[3] = "app128155.sjc104.service-now.com:ascensionprod149";
+add in app128152.sjc104.service-now.com:ascensionprod171*/
+}
+
+
+var sec = parseInt(new Date().getSeconds(),10);
+
+if(NODES.length > 0) {
+var idx = sec % NODES.length;
+current.system_id = NODES[idx];
+ }
+
+}]]></script>
+<sys_class_name>sys_script</sys_class_name>
+<sys_created_by>chris.nguyen@snc</sys_created_by>
+<sys_created_on>2012-12-05 19:23:02</sys_created_on>
+<sys_customer_update>true</sys_customer_update>
+<sys_domain>global</sys_domain>
+<sys_id>6c96e57e784a700046d30f5c942ab1e2</sys_id>
+<sys_mod_count>9</sys_mod_count>
+<sys_name>SNC Limit Discovery Processing</sys_name>
+<sys_overrides display_value=""/>
+<sys_package display_value=""/>
+<sys_policy/>
+<sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+<sys_scope display_value="Global">global</sys_scope>
+<sys_update_name>sys_script_6c96e57e784a700046d30f5c942ab1e2</sys_update_name>
+<sys_updated_by>ddoak</sys_updated_by>
+<sys_updated_on>2017-11-20 17:42:42</sys_updated_on>
+<template/>
+<when>before</when>
+</sys_script>
+</unload>
