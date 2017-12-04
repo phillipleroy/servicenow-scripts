@@ -2,7 +2,8 @@
 
  This script fixes the issue seen on TASK277553.
  Related to PRB1239850. Don't provide the script to customers and make sure the issue is indeed the one mentioned in PRB.
-
+ Run this script on the Background Script.
+ 
 */
 
 (function() {
